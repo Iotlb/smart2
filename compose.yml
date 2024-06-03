@@ -1,0 +1,84 @@
+version: "3.4"
+
+networks:
+  miarete:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.37.0.0/16"
+ 
+volumes:
+  volsumo:
+  volx:
+  volek:
+ 
+services:
+
+  simulazione:
+    image: mysumo10
+    volumes:
+       - type: bind	
+         source: volsumo
+         target: /dev/dalpc
+    ports:
+       - "6080:80"
+    container_name: simulazione
+    hostname: simulazione
+    user: root:root
+    environment:
+       DISPLAY: &DISPLAY
+       SUMO_HOME: "/sumo"
+    networks:
+        miarete:
+           ipv4_address: 172.37.0.11
+    
+  kui-manager:
+    image: emqx/ekuiper-manager:latest
+    container_name: ekuiper-manager
+    hostname: ekuiper-manager
+    ports:
+      - "9082:9082"
+    restart: unless-stopped
+    environment:
+      # setting default eKuiper service, works since 1.8.0
+      DEFAULT_EKUIPER_ENDPOINT: "http://ekuiper:9081"
+      # DEFAULT_EKUIPER_ENDPOINT: "http://172.37.0.5:9081"
+    networks:
+        miarete:
+           ipv4_address: 172.37.0.22
+      
+  ekuiper:
+    image: lfedge/ekuiper:1.9.1
+    ports:
+      - "9081:9081"
+      - "127.0.0.1:20498:20498"
+    container_name: ekuiper
+    hostname: ekuiper
+    restart: unless-stopped
+    user: root
+    volumes:
+      - /tmp/data:/kuiper/data
+      - /tmp/log:/kuiper/log
+      - ./volek:/dev/dalpc
+    environment:
+       MQTT_SOURCE__DEFAULT__SERVER: "tcp://broker.emqx.io:1883"
+       KUIPER__BASIC__CONSOLELOG: "true"
+       KUIPER__BASIC__IGNORECASE: "false"
+    networks:
+        miarete:
+           ipv4_address: 172.37.0.5
+    
+  edgex:
+    image: edgexfoundry/edgex-ui:2.1.0
+    volumes:
+       - type: bind	
+         source: volx
+         target: /dev/dalpc
+    ports:
+       - "4000:4000"
+    container_name: e-x
+    hostname: e-x
+    user: root:root
+    networks:
+        miarete:
+           ipv4_address: 172.37.0.7

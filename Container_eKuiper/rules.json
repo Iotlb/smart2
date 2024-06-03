@@ -1,0 +1,22 @@
+{
+  "streams": {
+    "streamtraffico": "\n              CREATE STREAM streamtraffico\n              (\n      Lane_id string, Istante string, Veicolo string, Posizione float, vel float\n    )\n              WITH (DATASOURCE=\"topic1\", FORMAT=\"json\", TYPE=\"mqtt\", SHARED=\"false\", TIMESTAMP=\"Istante\", );\n          "
+  },
+  "tables": {},
+  "rules": {
+    "2024-02-23": "{\"triggered\":true,\"id\":\"2024-02-23\",\"name\":\"ricevitutto\",\"sql\":\"SELECT * FROM streamtraffico \",\"actions\":[{\"file\":{\"bufferLength\":1024,\"enableCache\":false,\"format\":\"json\",\"omitIfEmpty\":false,\"path\":\"/kuiper/tuttoiltraffico.xml\",\"runAsync\":false,\"sendSingle\":true}}],\"options\":{\"isEventTime\":false,\"lateTolerance\":1000,\"concurrency\":1,\"bufferLength\":1024,\"sendMetaToSink\":false,\"sendError\":true,\"qos\":0,\"checkpointInterval\":300000,\"restartStrategy\":{\"attempts\":0,\"delay\":1000,\"multiplier\":2,\"maxDelay\":30000,\"jitter\":0.1}}}",
+    "2024-02-235": "{\"triggered\":true,\"id\":\"2024-02-235\",\"name\":\"filtro strada generale\",\"sql\":\"SELECT * FROM streamtraffico WHERE Lane_id=\\\"-31265883#2_0\\\"\",\"actions\":[{\"file\":{\"bufferLength\":1024,\"enableCache\":false,\"format\":\"json\",\"omitIfEmpty\":false,\"path\":\"/kuiper/strada.xml\",\"runAsync\":false,\"sendSingle\":true}}],\"options\":{\"isEventTime\":false,\"lateTolerance\":1000,\"concurrency\":1,\"bufferLength\":1024,\"sendMetaToSink\":false,\"sendError\":true,\"qos\":0,\"checkpointInterval\":300000,\"restartStrategy\":{\"attempts\":0,\"delay\":1000,\"multiplier\":2,\"maxDelay\":30000,\"jitter\":0.1}}}",
+    "2024-5-236": "{\"triggered\":true,\"id\":\"2024-5-236\",\"name\":\"eccesso velocita\",\"sql\":\"SELECT * FROM streamtraffico \\r\\nWHERE vel \\u003e 22.0 \",\"actions\":[{\"file\":{\"bufferLength\":1024,\"enableCache\":false,\"format\":\"json\",\"omitIfEmpty\":false,\"path\":\"/kuiper/speeding.xml\",\"runAsync\":false,\"sendSingle\":true}}],\"options\":{\"isEventTime\":false,\"lateTolerance\":1000,\"concurrency\":1,\"bufferLength\":1024,\"sendMetaToSink\":false,\"sendError\":true,\"qos\":0,\"checkpointInterval\":300000,\"restartStrategy\":{\"attempts\":0,\"delay\":1000,\"multiplier\":2,\"maxDelay\":30000,\"jitter\":0.1}}}",
+    "2024-5-237": "{\"triggered\":true,\"id\":\"2024-5-237\",\"name\":\"segui veicolo\",\"sql\":\"SELECT * FROM streamtraffico WHERE Veicolo=\\\"veh1.1\\\"\",\"actions\":[{\"file\":{\"bufferLength\":1024,\"enableCache\":false,\"format\":\"json\",\"omitIfEmpty\":false,\"path\":\"/kuiper/seguiveicolo.xml\",\"runAsync\":false,\"sendSingle\":true}}],\"options\":{\"isEventTime\":false,\"lateTolerance\":1000,\"concurrency\":1,\"bufferLength\":1024,\"sendMetaToSink\":false,\"sendError\":true,\"qos\":0,\"checkpointInterval\":300000,\"restartStrategy\":{\"attempts\":0,\"delay\":1000,\"multiplier\":2,\"maxDelay\":30000,\"jitter\":0.1}}}",
+    "2024-5-239": "{\"triggered\":true,\"id\":\"2024-5-239\",\"name\":\"conteggio veicoli strada (windowing 1)\",\"sql\":\"SELECT COUNT(Veicolo)\\r\\nFROM streamtraffico\\r\\nWHERE Lane_id=\\\"-31265883#2_0\\\" GROUP BY Istante, TUMBLINGWINDOW(ss,1)\",\"actions\":[{\"file\":{\"bufferLength\":1024,\"enableCache\":false,\"format\":\"json\",\"omitIfEmpty\":false,\"path\":\"/kuiper/conteggioveicolistrada.xml\",\"runAsync\":false,\"sendSingle\":true}}],\"options\":{\"isEventTime\":false,\"lateTolerance\":1000,\"concurrency\":1,\"bufferLength\":1024,\"sendMetaToSink\":false,\"sendError\":true,\"qos\":0,\"checkpointInterval\":300000,\"restartStrategy\":{\"attempts\":0,\"delay\":1000,\"multiplier\":2,\"maxDelay\":30000,\"jitter\":0.1}}}"
+  },
+  "nativePlugins": {},
+  "portablePlugins": {},
+  "sourceConfig": {
+    "mqtt": "{\"\":{}}"
+  },
+  "sinkConfig": {},
+  "connectionConfig": {},
+  "Service": {},
+  "Schema": {}
+}
